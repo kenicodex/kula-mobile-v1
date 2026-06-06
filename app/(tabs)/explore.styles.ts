@@ -32,17 +32,61 @@ export const makeStyles = (theme: Theme) =>
       borderColor: theme.hair,
       marginTop: spacing[3],
     },
-    searchInput: {
+    searchPlaceholder: {
       flex: 1,
       marginLeft: spacing[2],
-      color: theme.ink,
+      color: theme.inkFaint,
       fontSize: 14,
     },
 
+    // ── Grid container ────────────────────────────────────────────────────────
+    gridContent: {
+      paddingBottom: spacing[6],
+    },
+    gridRow: {
+      paddingHorizontal: spacing[1],
+    },
+
+    // ── Find-a-Creator CTA ───────────────────────────────────────────────────────
+    cta: {
+      marginHorizontal: spacing[4],
+      marginTop: spacing[3],
+      backgroundColor: theme.primary,
+      borderRadius: radius['2xl'],
+      padding: spacing[5],
+    },
+    ctaTitle: {
+      color: theme.white,
+      fontSize: 18,
+      fontWeight: '700',
+    },
+    ctaSubtitle: {
+      color: 'rgba(255,255,255,0.8)',
+      fontSize: 14,
+      marginTop: spacing[1],
+    },
+    ctaActionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: spacing[3],
+    },
+    ctaActionText: {
+      color: theme.white,
+      fontSize: 14,
+      fontWeight: '700',
+    },
+    ctaActionIcon: {
+      marginLeft: 4,
+    },
+
     // ── Hashtag chips ─────────────────────────────────────────────────────────
+    hashtagSection: {
+      paddingTop: spacing[3],
+    },
     hashtagListContent: {
-      paddingHorizontal: spacing[3],
-      paddingVertical: spacing[3],
+      paddingHorizontal: spacing[4],
+      paddingTop: spacing[1],
+      paddingBottom: spacing[3],
       gap: spacing[2],
     },
     hashtagPill: {
@@ -59,7 +103,7 @@ export const makeStyles = (theme: Theme) =>
       fontWeight: '600',
     },
 
-    // ── Section header ────────────────────────────────────────────────────────
+    // ── Section headers ───────────────────────────────────────────────────────
     sectionHeader: {
       paddingHorizontal: spacing[4],
       color: theme.ink,
@@ -73,69 +117,130 @@ export const makeStyles = (theme: Theme) =>
       fontSize: 16,
       fontWeight: '700',
       marginBottom: spacing[2],
-      marginTop: spacing[2],
+      marginTop: spacing[3],
+    },
+    creatorsHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingRight: spacing[4],
+    },
+    seeAll: {
+      color: theme.primary,
+      fontSize: 13,
+      fontWeight: '600',
     },
 
-    // ── Popular chefs ─────────────────────────────────────────────────────────
-    chefsListContent: {
+    // ── Popular creators ─────────────────────────────────────────────────────────
+    creatorsListContent: {
       paddingHorizontal: spacing[4],
       paddingBottom: spacing[4],
       gap: spacing[2.5],
     },
-    chefCard: {
-      width: 140,
+    creatorCard: {
+      width: 160,
       backgroundColor: theme.card,
       borderRadius: radius['2xl'],
       borderWidth: 1,
       borderColor: theme.hair,
       overflow: 'hidden',
     },
-    chefCover: {
+    creatorCover: {
       width: '100%',
-      height: 84,
+      height: 96,
     },
-    chefCoverFallback: {
+    creatorCoverFallback: {
       width: '100%',
-      height: 84,
+      height: 96,
       backgroundColor: theme.primaryMuted,
     },
-    chefBody: {
-      padding: spacing[2],
+    creatorBody: {
+      padding: spacing[2.5],
     },
-    chefName: {
+    creatorName: {
       color: theme.ink,
       fontSize: 13,
       fontWeight: '700',
     },
-    chefMetaRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
+    creatorSubtitle: {
       marginTop: 2,
-    },
-    chefRating: {
-      marginLeft: 2,
-      color: theme.inkLight,
+      color: theme.inkMuted,
       fontSize: 11,
     },
-    chefsEmpty: {
+    creatorMetaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: spacing[1],
+    },
+    creatorRating: {
+      marginLeft: 3,
+      color: theme.inkLight,
+      fontSize: 11,
+      fontWeight: '600',
+    },
+    creatorPrice: {
+      marginLeft: 4,
+      color: theme.inkMuted,
+      fontSize: 11,
+    },
+    emptyInline: {
       paddingHorizontal: spacing[4],
+      paddingBottom: spacing[3],
       color: theme.inkMuted,
       fontSize: 12,
     },
 
     // ── Posts grid ────────────────────────────────────────────────────────────
     postCell: {
-      width: '33.333%',
+      flex: 1 / 3,
       aspectRatio: 1,
-      padding: 2,
+      padding: spacing[0.5],
     },
     postImage: {
       width: '100%',
       height: '100%',
+      borderRadius: radius.md,
     },
     postFallback: {
       width: '100%',
       height: '100%',
+      borderRadius: radius.md,
       backgroundColor: theme.hair,
+    },
+
+    // ── Loading / empty ───────────────────────────────────────────────────────
+    loadingWrap: {
+      paddingVertical: spacing[8],
+      alignItems: 'center',
+    },
+    emptyWrap: {
+      paddingHorizontal: spacing[6],
+      paddingVertical: spacing[8],
+      alignItems: 'center',
+    },
+    emptyIcon: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: theme.primaryMuted,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing[3],
+    },
+    emptyTitle: {
+      color: theme.ink,
+      fontSize: 15,
+      fontWeight: '700',
+      marginBottom: spacing[1],
+      textAlign: 'center',
+    },
+    emptySub: {
+      color: theme.inkMuted,
+      fontSize: 13,
+      textAlign: 'center',
+    },
+
+    pressed: {
+      opacity: 0.85,
     },
   });

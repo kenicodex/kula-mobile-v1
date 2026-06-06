@@ -8,38 +8,21 @@ export const makeStyles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.surface,
     },
-    topBar: {
-      backgroundColor: theme.card,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.hair,
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing[3],
-      paddingVertical: spacing[2],
-    },
-    backButton: {
-      width: 36,
-      height: 36,
-      borderRadius: radius.full,
-      backgroundColor: theme.surface,
-      borderWidth: 1,
-      borderColor: theme.hair,
+    centeredFill: {
+      flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+      padding: spacing[6],
     },
-    topTitle: {
-      flex: 1,
+    emptyText: {
+      color: theme.inkMuted,
+      fontSize: 13,
       textAlign: 'center',
-      color: theme.ink,
-      fontSize: 16,
-      fontWeight: '700',
-    },
-    topRightSpacer: {
-      width: 36,
+      marginTop: spacing[3],
     },
     scrollContent: {
       padding: spacing[4],
-      paddingBottom: 100,
+      paddingBottom: 120,
     },
     banner: {
       backgroundColor: theme.primaryMuted,
@@ -74,47 +57,58 @@ export const makeStyles = (theme: Theme) =>
       borderBottomWidth: 1,
       borderBottomColor: theme.hair,
     },
-    checkbox: {
-      width: 24,
-      height: 24,
-      borderRadius: radius.md,
-      borderWidth: 2,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    checkboxOn: {
-      backgroundColor: theme.primary,
-      borderColor: theme.primary,
-    },
-    checkboxOff: {
-      borderColor: theme.hair,
-    },
     itemBody: {
       flex: 1,
-      marginLeft: spacing[3],
     },
     itemName: {
-      fontSize: 13,
-    },
-    itemNameOn: {
       color: theme.ink,
-    },
-    itemNameOff: {
-      color: theme.inkMuted,
+      fontSize: 13,
     },
     itemQty: {
       color: theme.inkMuted,
       fontSize: 11,
+      marginTop: 2,
     },
     itemPrice: {
+      color: theme.ink,
       fontSize: 13,
       fontWeight: '700',
     },
-    itemPriceOn: {
-      color: theme.ink,
+    draftCard: {
+      backgroundColor: theme.card,
+      borderRadius: radius['2xl'],
+      borderWidth: 1,
+      borderColor: theme.hair,
+      padding: spacing[4],
+      marginTop: spacing[3],
     },
-    itemPriceOff: {
-      color: theme.inkMuted,
+    draftHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing[2],
+    },
+    draftTitle: {
+      color: theme.ink,
+      fontSize: 13,
+      fontWeight: '700',
+    },
+    addRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing[3],
+      marginTop: spacing[3],
+      borderRadius: radius['2xl'],
+      borderWidth: 1,
+      borderStyle: 'dashed',
+      borderColor: theme.primary,
+      gap: spacing[2],
+    },
+    addRowText: {
+      color: theme.primary,
+      fontSize: 13,
+      fontWeight: '700',
     },
     totalCard: {
       backgroundColor: theme.card,
@@ -127,6 +121,9 @@ export const makeStyles = (theme: Theme) =>
     totalRow: {
       flexDirection: 'row',
     },
+    totalRowSpaced: {
+      marginTop: spacing[2],
+    },
     totalLabel: {
       flex: 1,
       color: theme.ink,
@@ -138,10 +135,46 @@ export const makeStyles = (theme: Theme) =>
       fontSize: 16,
       fontWeight: '700',
     },
-    totalSubtext: {
+    receiptCard: {
+      backgroundColor: theme.card,
+      borderRadius: radius['2xl'],
+      borderWidth: 1,
+      borderColor: theme.hair,
+      padding: spacing[4],
+      marginTop: spacing[3],
+    },
+    receiptTitle: {
+      color: theme.ink,
+      fontSize: 14,
+      fontWeight: '700',
+      marginBottom: spacing[3],
+    },
+    receiptImage: {
+      width: '100%',
+      height: 220,
+      borderRadius: radius.lg,
+      backgroundColor: theme.surface,
+    },
+    uploadBox: {
+      height: 160,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderStyle: 'dashed',
+      borderColor: theme.hair,
+      backgroundColor: theme.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing[3],
+      overflow: 'hidden',
+    },
+    uploadPreview: {
+      width: '100%',
+      height: '100%',
+    },
+    uploadHint: {
       color: theme.inkMuted,
       fontSize: 12,
-      marginTop: spacing[1],
+      marginTop: spacing[2],
     },
     footer: {
       position: 'absolute',

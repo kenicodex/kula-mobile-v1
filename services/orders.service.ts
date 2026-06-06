@@ -2,7 +2,7 @@ import api from './api';
 import type { Order } from '@/types';
 
 export interface CreateOrderPayload {
-  chefId: string;
+  creatorId: string;
   items: { menuItemId?: string; name: string; quantity: number; unitPrice: number }[];
   fulfillmentType: 'delivery' | 'pickup' | 'dine_in';
   deliveryAddress?: {
@@ -25,9 +25,9 @@ export const ordersService = {
       .then((r) => r.data);
   },
 
-  chefOrders(status?: string) {
+  creatorOrders(status?: string) {
     return api
-      .get<Order[]>('/orders/chef', { params: status ? { status } : {} })
+      .get<Order[]>('/orders/creator', { params: status ? { status } : {} })
       .then((r) => r.data);
   },
 

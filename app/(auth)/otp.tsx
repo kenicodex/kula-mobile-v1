@@ -68,7 +68,7 @@ export default function OtpScreen() {
       const role = user?.role;
       if (role === 'client') {
         router.replace('/(auth)/profile/step1');
-      } else if (role === 'chef') {
+      } else if (role === 'creator') {
         router.replace('/(tabs)');
       } else {
         router.replace('/(tabs)');

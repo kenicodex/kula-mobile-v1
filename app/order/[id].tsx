@@ -1,15 +1,16 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { NavHeader } from '@/components/layout/NavHeader';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
 import { ordersService } from '@/services';
-import { asChef, asUser, idOf } from '@/services/adapters';
+import { asCreator, asUser, idOf } from '@/services/adapters';
 import { fmtMoney } from '@/lib/format';
 import { makeStyles } from './[id].styles';
 
@@ -34,27 +35,15 @@ export default function OrderDetailScreen() {
     enabled: !!id,
   });
 
-  const chef = asChef(order?.chefId);
-  const chefUser = asUser(chef?.user) ?? asUser(chef?.userId);
+  const creator = asCreator(order?.creatorId);
+  const creatorUser = asUser(creator?.user) ?? asUser(creator?.userId);
   const stepIdx = order
     ? STEPS.indexOf(order.status as (typeof STEPS)[number])
     : -1;
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.topBar}>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={10}
-          style={styles.backButton}
-        >
-          <Ionicons name="chevron-back" size={20} color={theme.ink} />
-        </Pressable>
-        <Text style={styles.topTitle}>Order Details</Text>
-        <View style={styles.topRightSpacer} />
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={[]}>
+      <NavHeader title="Order Details" backVariant="circle" />
 
       {isLoading || !order ? (
         <View style={styles.centeredFill}>
@@ -121,17 +110,17 @@ export default function OrderDetailScreen() {
             </View>
           </View>
 
-          {/* Chef */}
+          {/* Creator */}
           <Pressable
-            onPress={() => router.push(`/chefs/${idOf(order.chefId)}`)}
-            style={styles.chefCard}
+            onPress={() => router.push(`/creators/${idOf(order.creatorId)}`)}
+            style={styles.creatorCard}
           >
-            <Avatar uri={chefUser?.avatar} name={chefUser?.name ?? 'Chef'} size="md" />
-            <View style={styles.chefBody}>
-              <Text style={styles.chefName}>{chefUser?.name ?? 'Chef'}</Text>
-              {(chef?.cuisineTypes ?? []).length > 0 && (
-                <Text style={styles.chefCuisine}>
-                  {(chef?.cuisineTypes ?? []).join(' · ')}
+            <Avatar uri={creatorUser?.avatar} name={creatorUser?.name ?? 'Creator'} size="md" />
+            <View style={styles.creatorBody}>
+              <Text style={styles.creatorName}>{creatorUser?.name ?? 'Creator'}</Text>
+              {(creator?.cuisineTypes ?? []).length > 0 && (
+                <Text style={styles.creatorCuisine}>
+                  {(creator?.cuisineTypes ?? []).join(' · ')}
                 </Text>
               )}
             </View>
@@ -163,7 +152,7 @@ export default function OrderDetailScreen() {
             <Button
               label="Message"
               variant="ghost"
-              onPress={() => order && router.push(`/chat/${idOf(order.chefId)}`)}
+              onPress={() => order && router.push(`/chat/${idOf(order.creatorId)}`)}
             />
           </View>
           <View style={styles.footerCol}>

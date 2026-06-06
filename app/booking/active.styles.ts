@@ -8,35 +8,6 @@ export const makeStyles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.surface,
     },
-    topBar: {
-      backgroundColor: theme.card,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.hair,
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing[3],
-      paddingVertical: spacing[2],
-    },
-    backButton: {
-      width: 36,
-      height: 36,
-      borderRadius: radius.full,
-      backgroundColor: theme.surface,
-      borderWidth: 1,
-      borderColor: theme.hair,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    topTitle: {
-      flex: 1,
-      textAlign: 'center',
-      color: theme.ink,
-      fontSize: 16,
-      fontWeight: '700',
-    },
-    topRightSpacer: {
-      width: 36,
-    },
     scrollContent: {
       padding: spacing[4],
       paddingBottom: 100,
@@ -71,7 +42,7 @@ export const makeStyles = (theme: Theme) =>
       color: theme.primary,
       fontSize: 12,
     },
-    chefCard: {
+    creatorCard: {
       backgroundColor: theme.card,
       borderRadius: radius['2xl'],
       borderWidth: 1,
@@ -81,16 +52,16 @@ export const makeStyles = (theme: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
     },
-    chefBody: {
+    creatorBody: {
       flex: 1,
       marginLeft: spacing[3],
     },
-    chefName: {
+    creatorName: {
       color: theme.ink,
       fontSize: 14,
       fontWeight: '700',
     },
-    chefMeta: {
+    creatorMeta: {
       color: theme.inkMuted,
       fontSize: 12,
     },

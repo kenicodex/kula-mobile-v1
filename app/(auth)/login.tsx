@@ -19,30 +19,6 @@ import { makeStyles } from './login.styles';
 
 // ─── Validation schema ────────────────────────────────────────────────────────
 
-const FAKE_USER_CLIENT: User = {
-  id: 'fake-client-123',
-  name: 'Kula Guest (Client)',
-  email: 'guest@kula.com',
-  phone: '+1234567890',
-  role: 'client',
-  isVerified: true,
-  dietaryRestrictions: [],
-  allergies: [],
-  addressBook: [],
-};
-
-const FAKE_USER_CHEF: User = {
-  id: 'fake-chef-123',
-  name: 'Chef Gordon',
-  email: 'chef@kula.com',
-  phone: '+1234567890',
-  role: 'chef',
-  isVerified: true,
-  dietaryRestrictions: [],
-  allergies: [],
-  addressBook: [],
-};
-
 const schema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -106,12 +82,6 @@ export default function LoginScreen() {
   });
 
   const onSubmit = (values: FormValues) => mutate(values);
-
-  const onFakeLogin = async (role: 'client' | 'chef') => {
-    const user = role === 'client' ? FAKE_USER_CLIENT : FAKE_USER_CHEF;
-    await setAuth(user, `fake-token-${role}`);
-    router.replace('/(tabs)');
-  };
 
   return (
     <ScreenWrapper scrollable statusBarStyle="dark">
@@ -183,24 +153,6 @@ export default function LoginScreen() {
           loading={isPending}
           onPress={handleSubmit(onSubmit)}
         />
-
-        {/* Fake login buttons */}
-        <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-          <Button
-            label="Fake Client"
-            variant="outline"
-            size="lg"
-            onPress={() => onFakeLogin('client')}
-            style={{ flex: 1 }}
-          />
-          <Button
-            label="Fake Chef"
-            variant="outline"
-            size="lg"
-            onPress={() => onFakeLogin('chef')}
-            style={{ flex: 1 }}
-          />
-        </View>
 
         {/* Divider */}
         <View style={styles.divider}>

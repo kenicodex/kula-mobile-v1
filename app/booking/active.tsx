@@ -1,16 +1,17 @@
 import React from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { NavHeader } from '@/components/layout/NavHeader';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
 import { makeStyles } from './active.styles';
 
 const STEPS = [
-  { id: 'arrived', label: 'Chef arrived', time: '3:55 PM' },
+  { id: 'arrived', label: 'Creator arrived', time: '3:55 PM' },
   { id: 'setup', label: 'Setup in progress', time: '4:00 PM' },
   { id: 'cooking', label: 'Cooking', time: '4:30 PM' },
   { id: 'serving', label: 'Serving', time: '6:00 PM' },
@@ -23,20 +24,8 @@ export default function ActiveBookingScreen() {
   const styles = useStyles(makeStyles);
   const router = useRouter();
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.topBar}>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={10}
-          style={styles.backButton}
-        >
-          <Ionicons name="chevron-back" size={20} color={theme.ink} />
-        </Pressable>
-        <Text style={styles.topTitle}>Active Booking</Text>
-        <View style={styles.topRightSpacer} />
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={[]}>
+      <NavHeader title="Active Booking" backVariant="circle" />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.statusBanner}>
@@ -45,15 +34,15 @@ export default function ActiveBookingScreen() {
           </View>
           <View style={styles.statusBody}>
             <Text style={styles.statusTitle}>In Progress</Text>
-            <Text style={styles.statusSubtitle}>Chef is currently cooking</Text>
+            <Text style={styles.statusSubtitle}>Creator is currently cooking</Text>
           </View>
         </View>
 
-        <View style={styles.chefCard}>
+        <View style={styles.creatorCard}>
           <Avatar name="Amaka Obi" size="md" />
-          <View style={styles.chefBody}>
-            <Text style={styles.chefName}>Amaka Obi</Text>
-            <Text style={styles.chefMeta}>Private Dining · 8 guests</Text>
+          <View style={styles.creatorBody}>
+            <Text style={styles.creatorName}>Amaka Obi</Text>
+            <Text style={styles.creatorMeta}>Private Dining · 8 guests</Text>
           </View>
           <Pressable
             onPress={() => router.push('/chat/1')}
@@ -128,7 +117,7 @@ export default function ActiveBookingScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button label="Message Chef" variant="primary" onPress={() => router.push('/chat/1')} />
+        <Button label="Message Creator" variant="primary" onPress={() => router.push('/chat/1')} />
       </View>
     </SafeAreaView>
   );

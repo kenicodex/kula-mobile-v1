@@ -14,7 +14,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
@@ -58,8 +58,8 @@ function AuthGuard() {
     const inPostSignupFlow =
       inAuthGroup &&
       (segments[1] === 'profile' ||
-        (segments[1] === 'chef' && segments[2] === 'onboard') ||
-        (segments[1] === 'chef' && segments[2] === 'pending'));
+        (segments[1] === 'creator' && segments[2] === 'onboard') ||
+        (segments[1] === 'creator' && segments[2] === 'pending'));
 
     if (!token && !inAuthGroup) {
       router.replace('/(auth)/onboarding');
@@ -96,11 +96,7 @@ function ThemedApp({ onLayoutRootView }: { onLayoutRootView: () => void }) {
         onLayout={onLayoutRootView}
       >
         <AuthGuard />
-        <Stack>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(chef)" options={{ headerShown: false }} />
-        </Stack>
+        <Stack screenOptions={{ headerShown: false }} />
         <FlashMessage position="top" />
         <StatusBar style={isDark ? 'light' : 'dark'} />
       </View>

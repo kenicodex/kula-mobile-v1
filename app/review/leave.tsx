@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { showMessage } from 'react-native-flash-message';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { NavHeader } from '@/components/layout/NavHeader';
 import { bookingsService, reviewsService, apiErrorMessage } from '@/services';
-import { asChef, asUser, idOf } from '@/services/adapters';
+import { asCreator, asUser, idOf } from '@/services/adapters';
 import { fmtDate } from '@/lib/format';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
@@ -39,9 +40,9 @@ export default function LeaveReviewScreen() {
     enabled: !!bookingId,
   });
 
-  const chef = asChef(booking?.chefId);
-  const chefUser = asUser(chef?.user) ?? asUser(chef?.userId);
-  const chefId = idOf(booking?.chefId);
+  const creator = asCreator(booking?.creatorId);
+  const creatorUser = asUser(creator?.user) ?? asUser(creator?.userId);
+  const creatorId = idOf(booking?.creatorId);
 
   const toggle = (c: string) => {
     setCategories((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
@@ -49,14 +50,14 @@ export default function LeaveReviewScreen() {
 
   const { mutate, isPending: loading } = useMutation({
     mutationFn: () => {
-      if (!chefId || !bookingId) throw new Error('Missing booking context');
+      if (!creatorId || !bookingId) throw new Error('Missing booking context');
       const catRatings = categories.reduce<Record<string, number>>((acc, c) => {
         const key = CATEGORY_KEY[c];
         if (key) acc[key] = rating;
         return acc;
       }, {});
       return reviewsService.create({
-        chefId,
+        creatorId,
         bookingId,
         rating,
         comment: comment || undefined,
@@ -81,22 +82,14 @@ export default function LeaveReviewScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={10} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={20} color={theme.ink} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Leave a Review</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={styles.safe} edges={[]}>
+      <NavHeader title="Leave a Review" backVariant="circle" />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.bookingCard}>
-          <Avatar uri={chefUser?.avatar} name={chefUser?.name ?? 'Chef'} size="md" />
+          <Avatar uri={creatorUser?.avatar} name={creatorUser?.name ?? 'Creator'} size="md" />
           <View style={styles.bookingInfo}>
-            <Text style={styles.chefName}>{chefUser?.name ?? 'Chef'}</Text>
+            <Text style={styles.creatorName}>{creatorUser?.name ?? 'Creator'}</Text>
             <Text style={styles.bookingMeta}>
               {booking
                 ? `${booking.serviceType.replace(/_/g, ' ')} · ${fmtDate(booking.date)}`
@@ -158,7 +151,7 @@ export default function LeaveReviewScreen() {
 
         <Text style={styles.sectionTitleSecondary}>Tell others about it</Text>
         <Text style={styles.sectionHelp}>
-          Your review helps other clients pick the right chef.
+          Your review helps other clients pick the right creator.
         </Text>
         <View style={styles.commentCard}>
           <TextInput

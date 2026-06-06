@@ -1,8 +1,8 @@
 import React from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { NavHeader } from '@/components/layout/NavHeader';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
 import { makeStyles } from './analytics.styles';
@@ -17,18 +17,9 @@ const STATS = [
 export default function ContentAnalyticsScreen() {
   const { theme } = useTheme();
   const styles = useStyles(makeStyles);
-  const router = useRouter();
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={10} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={20} color={theme.ink} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Content Analytics</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={styles.safe} edges={[]}>
+      <NavHeader title="Content Analytics" backVariant="circle" />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.statsRow}>
@@ -58,7 +49,7 @@ export default function ContentAnalyticsScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Top performing post</Text>
           <Text style={styles.cardBody}>
-            Your most engaging post this week reached 12,420 accounts and drove 47 chef profile visits.
+            Your most engaging post this week reached 12,420 accounts and drove 47 creator profile visits.
           </Text>
         </View>
 

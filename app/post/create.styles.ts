@@ -52,6 +52,39 @@ export const makeStyles = (theme: Theme) =>
     scrollContent: {
       paddingBottom: 32,
     },
+    modeRow: {
+      flexDirection: 'row',
+      gap: spacing[2],
+      paddingHorizontal: spacing[4],
+      paddingTop: spacing[3],
+    },
+    modeChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: spacing[3],
+      paddingVertical: spacing[1.5],
+      borderRadius: 999,
+      borderWidth: 1,
+    },
+    modeChipActive: {
+      backgroundColor: theme.primary,
+      borderColor: theme.primary,
+    },
+    modeChipInactive: {
+      backgroundColor: theme.surface,
+      borderColor: theme.hair,
+    },
+    modeChipText: {
+      fontSize: 12,
+      fontWeight: '700',
+    },
+    modeChipTextActive: {
+      color: theme.white,
+    },
+    modeChipTextInactive: {
+      color: theme.inkMuted,
+    },
     mediaScrollContent: {
       paddingHorizontal: spacing[4],
       paddingVertical: spacing[3],

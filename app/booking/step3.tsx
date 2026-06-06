@@ -84,7 +84,7 @@ export default function BookingStep3() {
         </View>
 
         <Text style={styles.sectionTitleSpaced}>Special requests</Text>
-        <Text style={styles.sectionSubtitle}>Any other notes for the chef.</Text>
+        <Text style={styles.sectionSubtitle}>Any other notes for the creator.</Text>
         <View style={styles.notesWrap}>
           <TextInput
             value={notes ?? ''}
@@ -103,7 +103,7 @@ export default function BookingStep3() {
           label="Continue"
           size="lg"
           variant="primary"
-          onPress={() => router.push('/booking/step4')}
+          onPress={() => router.push('/booking/location')}
         />
       </View>
     </SafeAreaView>

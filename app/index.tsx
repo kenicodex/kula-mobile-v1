@@ -38,7 +38,7 @@ export default function IndexScreen() {
         /> */}
 
         <Text style={styles.tagline}>
-          Your personal chef, on demand
+          Your personal creator, on demand
         </Text>
       </View>
     </View>

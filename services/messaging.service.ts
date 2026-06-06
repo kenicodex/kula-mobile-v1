@@ -1,6 +1,13 @@
 import api from './api';
 import type { Conversation, Message } from '@/types';
 
+interface PaginatedMessages {
+  data: Message[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export const messagingService = {
   conversations() {
     return api.get<Conversation[]>('/messaging/conversations').then((r) => r.data);
@@ -14,8 +21,8 @@ export const messagingService = {
 
   messages(conversationId: string, params: { page?: number; limit?: number } = {}) {
     return api
-      .get<Message[]>(`/messaging/conversations/${conversationId}/messages`, { params })
-      .then((r) => r.data);
+      .get<PaginatedMessages>(`/messaging/conversations/${conversationId}/messages`, { params })
+      .then((r) => r.data.data);
   },
 
   send(conversationId: string, payload: { text: string; mediaUrl?: string }) {

@@ -1,6 +1,6 @@
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
-export type UserRole = 'client' | 'chef' | 'creator' | 'admin';
+export type UserRole = 'client' | 'creator' | 'admin';
 
 export type BookingStatus =
   | 'pending'
@@ -45,6 +45,7 @@ export interface User {
   phone: string;
   role: UserRole;
   avatar?: string;
+  coverImageUrl?: string;
   isVerified: boolean;
   fcmToken?: string;
   dietaryRestrictions: string[];
@@ -53,20 +54,20 @@ export interface User {
   createdAt?: string;
 }
 
-export interface ChefPricing {
+export interface CreatorPricing {
   serviceType: ServiceType;
   basePrice: number;
   currency: string;
   unit?: string; // e.g. 'per hour', 'per event'
 }
 
-export interface ChefAvailability {
+export interface CreatorAvailability {
   days: ('mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun')[];
   startTime: string; // "HH:mm"
   endTime: string;   // "HH:mm"
 }
 
-export interface Chef {
+export interface Creator {
   id: string;
   userId: string | User;
   bio: string;
@@ -74,8 +75,8 @@ export interface Chef {
   mealCategories: string[];
   signatureDishes: string[];
   serviceTypes: ServiceType[];
-  pricing: ChefPricing[];
-  availability: ChefAvailability | Record<string, { start: string; end: string }[]>;
+  pricing: CreatorPricing[];
+  availability: CreatorAvailability | Record<string, { start: string; end: string }[]>;
   rating: number;
   reviewCount: number;
   bookingCount?: number;
@@ -94,7 +95,7 @@ export interface TimeSlot {
 export interface Booking {
   id: string;
   clientId: string;
-  chefId: string;
+  creatorId: string;
   serviceType: ServiceType;
   hireType: HireType;
   date: string; // ISO date string
@@ -108,7 +109,7 @@ export interface Booking {
   reference: string;
   createdAt: string;
   client?: User;
-  chef?: Chef;
+  creator?: Creator;
 }
 
 export interface Post {
@@ -142,21 +143,30 @@ export interface Review {
   id: string;
   clientId: string;
   client?: User;
-  chefId: string;
+  creatorId: string;
   bookingId: string;
   rating: number;
   comment?: string;
-  chefResponse?: string;
+  creatorResponse?: string;
   categories?: ReviewCategory[];
   createdAt: string;
 }
 
+export interface ConversationParticipant {
+  conversationId: string;
+  userId: string;
+  user?: Pick<User, 'id' | 'name' | 'avatar' | 'role'>;
+}
+
 export interface Conversation {
   id: string;
-  participants: string[]; // User IDs
-  participantUsers?: User[];
-  lastMessage?: Message;
+  bookingId?: string | null;
+  participants: ConversationParticipant[];
+  lastMessage?: Message | null;
+  isRequestAccepted?: boolean;
+  isRequestDeclined?: boolean;
   updatedAt: string;
+  createdAt?: string;
 }
 
 export interface Message {
@@ -199,7 +209,7 @@ export interface OrderItem {
 export interface Order {
   id: string;
   clientId: string;
-  chefId: string;
+  creatorId: string;
   items: OrderItem[];
   fulfillmentType: FulfillmentType;
   deliveryAddress?: Address;
@@ -210,7 +220,7 @@ export interface Order {
   reference: string;
   createdAt: string;
   client?: User;
-  chef?: Chef;
+  creator?: Creator;
 }
 
 // ─── API Utilities ────────────────────────────────────────────────────────────

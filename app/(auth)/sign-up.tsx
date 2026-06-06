@@ -123,7 +123,7 @@ export default function SignUpScreen() {
         <View style={styles.titleBlock}>
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>
-            Join Kula and discover great chefs near you.
+            Join Kula and discover great creators near you.
           </Text>
         </View>
 

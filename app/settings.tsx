@@ -1,81 +1,131 @@
-import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import React from 'react';
+import { Alert, Linking, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import { NavHeader } from '@/components/layout/NavHeader';
 import { useAuthStore } from '@/store/auth.store';
+import { usePreferencesStore } from '@/store/preferences.store';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
 import { makeStyles } from './settings.styles';
 
+const SUPPORT_EMAIL = 'support@kula.app';
+const PRIVACY_URL = 'https://kula.app/privacy';
+const TERMS_URL = 'https://kula.app/terms';
+const HELP_URL = 'https://kula.app/help';
+
+const APP_VERSION =
+  (Constants.expoConfig?.version as string | undefined) ?? '1.0.0';
+
+async function openExternal(url: string) {
+  const supported = await Linking.canOpenURL(url);
+  if (supported) {
+    Linking.openURL(url);
+  } else {
+    Alert.alert('Cannot open link', url);
+  }
+}
+
 export default function SettingsScreen() {
-  const { theme } = useTheme();
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const logout = useAuthStore((s) => s.logout);
+  const { user, logout } = useAuthStore();
+  const prefs = usePreferencesStore();
 
-  const [push, setPush] = useState(true);
-  const [reminders, setReminders] = useState(true);
-  const [marketing, setMarketing] = useState(false);
-  const [location, setLocation] = useState(true);
+  const contactSupport = () =>
+    openExternal(`mailto:${SUPPORT_EMAIL}?subject=Kula%20support%20request`);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={10}
-          style={styles.backBtn}
-        >
-          <Ionicons name="chevron-back" size={20} color={theme.ink} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Settings</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={styles.safe} edges={[]}>
+      <NavHeader title="Settings" backVariant="circle" />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <SectionHeader title="Account" />
-        <NavTile icon="person-outline" label="Edit Profile" />
-        <NavTile icon="lock-closed-outline" label="Change Password" />
-        <NavTile icon="call-outline" label="Phone Number" value="+234 812 345 6789" />
-        <NavTile icon="mail-outline" label="Email Address" value="user@email.com" />
+        <NavTile
+          icon="person-outline"
+          label="Edit Profile"
+          onPress={() => router.push('/profile/edit')}
+        />
+        <NavTile
+          icon="lock-closed-outline"
+          label="Change Password"
+          onPress={() => router.push('/profile/change-password')}
+        />
+        <NavTile
+          icon="call-outline"
+          label="Phone Number"
+          value={user?.phone || 'Not set'}
+          onPress={() => router.push('/profile/edit')}
+        />
+        <NavTile
+          icon="mail-outline"
+          label="Email Address"
+          value={user?.email || 'Not set'}
+          onPress={() => router.push('/profile/edit')}
+        />
 
         <SectionHeader title="Notifications" />
         <ToggleTile
           icon="notifications-outline"
           label="Push Notifications"
-          value={push}
-          onChange={setPush}
+          value={prefs.pushNotifications}
+          onChange={(v) => prefs.set({ pushNotifications: v })}
         />
         <ToggleTile
           icon="alarm-outline"
           label="Booking Reminders"
-          value={reminders}
-          onChange={setReminders}
+          value={prefs.bookingReminders}
+          onChange={(v) => prefs.set({ bookingReminders: v })}
         />
         <ToggleTile
           icon="megaphone-outline"
           label="Marketing Emails"
-          value={marketing}
-          onChange={setMarketing}
+          value={prefs.marketingEmails}
+          onChange={(v) => prefs.set({ marketingEmails: v })}
         />
 
         <SectionHeader title="Privacy & Location" />
         <ToggleTile
           icon="location-outline"
           label="Location Services"
-          value={location}
-          onChange={setLocation}
+          value={prefs.locationServices}
+          onChange={(v) => prefs.set({ locationServices: v })}
         />
-        <NavTile icon="shield-checkmark-outline" label="Privacy Policy" />
-        <NavTile icon="document-text-outline" label="Terms of Service" />
+        <NavTile
+          icon="shield-checkmark-outline"
+          label="Privacy Policy"
+          onPress={() => openExternal(PRIVACY_URL)}
+        />
+        <NavTile
+          icon="document-text-outline"
+          label="Terms of Service"
+          onPress={() => openExternal(TERMS_URL)}
+        />
 
         <SectionHeader title="Support" />
-        <NavTile icon="help-circle-outline" label="Help Center" />
-        <NavTile icon="chatbubbles-outline" label="Contact Us" />
-        <NavTile icon="information-circle-outline" label="About Kula" value="v1.0.0" />
+        <NavTile
+          icon="help-circle-outline"
+          label="Help Center"
+          onPress={() => openExternal(HELP_URL)}
+        />
+        <NavTile
+          icon="chatbubbles-outline"
+          label="Contact Us"
+          onPress={contactSupport}
+        />
+        <NavTile
+          icon="information-circle-outline"
+          label="About Kula"
+          value={`v${APP_VERSION}`}
+          onPress={() =>
+            Alert.alert(
+              'About Kula',
+              `Version ${APP_VERSION}\n\nBuilt with love for our community of clients, creators, and creators.`,
+            )
+          }
+        />
 
         <View style={styles.logoutWrap}>
           <Pressable

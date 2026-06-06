@@ -15,7 +15,7 @@ export type BookingStatus =
 
 export interface BookingItem {
   id: string;
-  chefName: string;
+  creatorName: string;
   service: string;
   date: string;
   status: BookingStatus;
@@ -50,9 +50,9 @@ export function BookingCard({
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed ? { opacity: 0.9 } : null]}
     >
-      <Avatar name={booking.chefName} size="md" />
+      <Avatar name={booking.creatorName} size="md" />
       <View style={styles.body}>
-        <Text style={styles.chefName}>{booking.chefName}</Text>
+        <Text style={styles.creatorName}>{booking.creatorName}</Text>
         <Text style={styles.service}>{booking.service}</Text>
         <View style={styles.dateRow}>
           <Ionicons name="calendar-outline" size={11} color={theme.inkMuted} />

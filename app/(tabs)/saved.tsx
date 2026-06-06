@@ -1,35 +1,51 @@
-import React, { useState } from 'react';
-import { FlatList, Pressable, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { spacing } from '@/constants/commonStyles';
 import { Ionicons } from '@expo/vector-icons';
-import { ChefCard, type ChefListItem } from '@/components/chef/ChefCard';
-import type { PostItem } from '@/components/feed/PostCard';
+import { useQuery } from '@tanstack/react-query';
+import { CreatorCard } from '@/components/creator/CreatorCard';
+import { SignedImage } from '@/components/ui/SignedImage';
+import { savedService } from '@/services';
+import { creatorToListItem } from '@/services/adapters';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
+import type { Creator, Post } from '@/types';
 import { makeStyles } from './saved.styles';
 
-type Tab = 'chefs' | 'posts';
-
-// NOTE: The backend does not yet expose a /users/me/saved endpoint. When it is
-// added, swap these placeholders for `useQuery` calls and remove the empty
-// states.
-const SAVED_CHEFS: ChefListItem[] = [];
-const SAVED_POSTS: PostItem[] = [];
+type Tab = 'creators' | 'posts';
 
 export default function SavedScreen() {
+  const { theme } = useTheme();
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>('chefs');
+  const insets = useSafeAreaInsets();
+  const [tab, setTab] = useState<Tab>('creators');
+
+  const creatorsQuery = useQuery({
+    queryKey: ['saved', 'creators'],
+    queryFn: () => savedService.listCreators(),
+    enabled: tab === 'creators',
+  });
+
+  const postsQuery = useQuery({
+    queryKey: ['saved', 'posts'],
+    queryFn: () => savedService.listPosts(),
+    enabled: tab === 'posts',
+  });
+
+  const creatorItems = useMemo(
+    () => (creatorsQuery.data ?? []).map((c) => creatorToListItem(c as Creator)),
+    [creatorsQuery.data],
+  );
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>
-          Saved
-        </Text>
+    <SafeAreaView style={styles.safeArea} edges={[]}>
+      <View style={[styles.header, { paddingTop: insets.top + spacing[2] }]}>
+        <Text style={styles.headerTitle}>Saved</Text>
         <View style={styles.tabsRow}>
-          {(['chefs', 'posts'] as Tab[]).map((t) => {
+          {(['creators', 'posts'] as Tab[]).map((t) => {
             const active = tab === t;
             return (
               <Pressable
@@ -46,7 +62,7 @@ export default function SavedScreen() {
                     active ? styles.tabPillTextActive : styles.tabPillTextInactive,
                   ]}
                 >
-                  {t === 'chefs' ? 'Chefs' : 'Posts'}
+                  {t === 'creators' ? 'Creators' : 'Posts'}
                 </Text>
               </Pressable>
             );
@@ -54,28 +70,42 @@ export default function SavedScreen() {
         </View>
       </View>
 
-      {tab === 'chefs' ? (
-        <FlatList
-          data={SAVED_CHEFS}
-          keyExtractor={(c) => c.id}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <Empty
-              icon="bookmark-outline"
-              message="No saved chefs yet"
-              sub="Bookmark chefs you love so they're easy to find."
-            />
-          }
-          renderItem={({ item }) => (
-            <ChefCard chef={item} onPress={() => router.push(`/chefs/${item.id}`)} />
-          )}
-        />
+      {tab === 'creators' ? (
+        creatorsQuery.isLoading ? (
+          <View style={styles.loadingWrap}>
+            <ActivityIndicator color={theme.primary} />
+          </View>
+        ) : (
+          <FlatList
+            data={creatorItems}
+            keyExtractor={(c) => c.id}
+            contentContainerStyle={styles.listContent}
+            refreshing={creatorsQuery.isFetching && !creatorsQuery.isLoading}
+            onRefresh={() => creatorsQuery.refetch()}
+            ListEmptyComponent={
+              <Empty
+                icon="bookmark-outline"
+                message="No saved creators yet"
+                sub="Bookmark creators you love so they're easy to find."
+              />
+            }
+            renderItem={({ item }) => (
+              <CreatorCard creator={item} onPress={() => router.push(`/creators/${item.id}`)} />
+            )}
+          />
+        )
+      ) : postsQuery.isLoading ? (
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator color={theme.primary} />
+        </View>
       ) : (
         <FlatList
-          data={SAVED_POSTS}
-          keyExtractor={(p) => p.id}
+          data={postsQuery.data ?? []}
+          keyExtractor={(p) => (p as Post).id}
           numColumns={3}
           contentContainerStyle={styles.gridContent}
+          refreshing={postsQuery.isFetching && !postsQuery.isLoading}
+          onRefresh={() => postsQuery.refetch()}
           ListEmptyComponent={
             <Empty
               icon="bookmark-outline"
@@ -83,7 +113,22 @@ export default function SavedScreen() {
               sub="Save posts to revisit recipes and ideas later."
             />
           }
-          renderItem={() => null}
+          renderItem={({ item }) => {
+            const post = item as Post;
+            const uri = post.mediaUrls?.[0];
+            return (
+              <Pressable
+                style={styles.gridTile}
+                onPress={() => router.push(`/post/${post.id}`)}
+              >
+                <SignedImage
+                  uri={uri}
+                  style={styles.gridImage}
+                  fallbackStyle={[styles.gridImage, styles.gridImageEmpty]}
+                />
+              </Pressable>
+            );
+          }}
         />
       )}
     </SafeAreaView>
@@ -106,12 +151,8 @@ function Empty({
       <View style={styles.emptyIcon}>
         <Ionicons name={icon} size={28} color={theme.primary} />
       </View>
-      <Text style={styles.emptyTitle}>
-        {message}
-      </Text>
-      <Text style={styles.emptySub}>
-        {sub}
-      </Text>
+      <Text style={styles.emptyTitle}>{message}</Text>
+      <Text style={styles.emptySub}>{sub}</Text>
     </View>
   );
 }

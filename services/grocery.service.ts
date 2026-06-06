@@ -1,27 +1,45 @@
 import api from './api';
 
+export type GroceryStatus =
+  | 'pending_approval'
+  | 'approved'
+  | 'purchased'
+  | 'reimbursed';
+
+export type GroceryPaymentMethod = 'app_payment' | 'creator_pays' | 'client_handles';
+
 export interface GroceryItem {
+  id?: string;
   name: string;
-  quantity: number;
-  estimatedPrice: number;
-  notes?: string;
+  quantity: string;
+  estimatedCost: number;
 }
 
 export interface GroceryList {
-  _id: string;
+  id: string;
   bookingId: string;
-  chefId: string;
+  creatorId: string;
   clientId: string;
   items: GroceryItem[];
   estimatedTotal: number;
-  approvalStatus: 'pending' | 'approved' | 'rejected';
-  receiptUrl?: string;
-  actualTotal?: number;
+  actualTotal?: number | null;
+  status: GroceryStatus;
+  receiptUrl?: string | null;
+  budgetCap?: number | null;
+  paymentMethod: GroceryPaymentMethod;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateGroceryListPayload {
+  bookingId: string;
+  items: { name: string; quantity: string; estimatedCost: number }[];
+  budgetCap?: number;
+  paymentMethod?: GroceryPaymentMethod;
 }
 
 export const groceryService = {
-  create(payload: { bookingId: string; items: GroceryItem[]; estimatedTotal: number }) {
+  create(payload: CreateGroceryListPayload) {
     return api.post<GroceryList>('/grocery', payload).then((r) => r.data);
   },
 

@@ -70,8 +70,13 @@ export const makeStyles = (theme: Theme) =>
     },
     actionsRow: {
       flexDirection: 'row',
+      alignItems: 'center',
       paddingHorizontal: spacing[3],
       marginTop: spacing[3],
+      paddingVertical: spacing[2],
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+      borderColor: theme.hair,
     },
     actionLeft: {
       flexDirection: 'row',
@@ -83,6 +88,24 @@ export const makeStyles = (theme: Theme) =>
       color: theme.ink,
       fontSize: 13,
       fontWeight: '600',
+    },
+    actionItem: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing[1.5],
+      paddingVertical: spacing[1],
+    },
+    actionLabel: {
+      color: theme.ink,
+      fontSize: 13,
+      fontWeight: '600',
+    },
+    actionDivider: {
+      width: 1,
+      alignSelf: 'stretch',
+      backgroundColor: theme.hair,
     },
     flexSpacer: {
       flex: 1,

@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/Input';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuthStore } from '@/store/auth.store';
-import { authService, apiErrorMessage, uploadToCloudinary } from '@/services';
+import { authService, apiErrorMessage, uploadToStorage } from '@/services';
 import { makeStyles } from './step1.styles';
 
 // ─── Validation ───────────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ export default function ProfileStep1Screen() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
@@ -68,8 +68,8 @@ export default function ProfileStep1Screen() {
     setPhotoUri(localUri); // optimistic preview
     setUploading(true);
     try {
-      const uploaded = await uploadToCloudinary(localUri, {
-        folder: 'kula/clients/avatars',
+      const uploaded = await uploadToStorage(localUri, {
+        folder: 'avatars',
         resourceType: 'image',
       });
       setPhotoUri(uploaded.url);

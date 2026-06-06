@@ -39,3 +39,10 @@ export function fmtNumber(n?: number | null) {
   if (n === null || n === undefined) return '—';
   return new Intl.NumberFormat('en-NG').format(n);
 }
+
+export function timeOfDayGreeting(now: Date = new Date()) {
+  const hour = now.getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}

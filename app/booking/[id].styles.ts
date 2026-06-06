@@ -8,38 +8,6 @@ export const makeStyles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.surface,
     },
-    topBar: {
-      backgroundColor: theme.card,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.hair,
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing[3],
-      paddingVertical: spacing[2],
-    },
-    backButton: {
-      width: 36,
-      height: 36,
-      borderRadius: radius.full,
-      backgroundColor: theme.surface,
-      borderWidth: 1,
-      borderColor: theme.hair,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    topTitle: {
-      flex: 1,
-      textAlign: 'center',
-      color: theme.ink,
-      fontSize: 16,
-      fontWeight: '700',
-    },
-    topActionButton: {
-      width: 36,
-      height: 36,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
     centeredFill: {
       flex: 1,
       alignItems: 'center',
@@ -66,7 +34,7 @@ export const makeStyles = (theme: Theme) =>
     statusSubtitle: {
       fontSize: 12,
     },
-    chefCard: {
+    creatorCard: {
       backgroundColor: theme.card,
       borderRadius: radius['2xl'],
       borderWidth: 1,
@@ -76,21 +44,21 @@ export const makeStyles = (theme: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
     },
-    chefBody: {
+    creatorBody: {
       flex: 1,
       marginLeft: spacing[3],
     },
-    chefNameRow: {
+    creatorNameRow: {
       flexDirection: 'row',
       alignItems: 'center',
     },
-    chefName: {
+    creatorName: {
       color: theme.ink,
       fontSize: 14,
       fontWeight: '700',
     },
-    chefIconSpacer: { marginLeft: 4 },
-    chefCuisine: {
+    creatorIconSpacer: { marginLeft: 4 },
+    creatorCuisine: {
       color: theme.inkMuted,
       fontSize: 12,
     },
@@ -130,4 +98,36 @@ export const makeStyles = (theme: Theme) =>
       marginTop: spacing[4],
     },
     actionFlex: { flex: 1 },
+    groceryLink: {
+      backgroundColor: theme.card,
+      borderRadius: radius['2xl'],
+      borderWidth: 1,
+      borderColor: theme.hair,
+      padding: spacing[3.5],
+      marginTop: spacing[3],
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    groceryIconWrap: {
+      width: 40,
+      height: 40,
+      borderRadius: radius.full,
+      backgroundColor: theme.primaryMuted,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    groceryBody: {
+      flex: 1,
+      marginLeft: spacing[3],
+    },
+    groceryTitle: {
+      color: theme.ink,
+      fontSize: 14,
+      fontWeight: '700',
+    },
+    grocerySubtitle: {
+      color: theme.inkMuted,
+      fontSize: 12,
+      marginTop: 2,
+    },
   });

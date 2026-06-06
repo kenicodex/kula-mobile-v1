@@ -26,4 +26,22 @@ export const authService = {
   updateMe(payload: Partial<User>) {
     return api.patch<User>('/users/me', payload).then((r) => r.data);
   },
+
+  forgotPassword(email: string) {
+    return api
+      .post<{ ok: true; devToken?: string }>('/auth/forgot-password', { email })
+      .then((r) => r.data);
+  },
+
+  resetPassword(token: string, newPassword: string) {
+    return api
+      .post<{ ok: true }>('/auth/reset-password', { token, newPassword })
+      .then((r) => r.data);
+  },
+
+  changePassword(currentPassword: string, newPassword: string) {
+    return api
+      .post<{ ok: true }>('/auth/change-password', { currentPassword, newPassword })
+      .then((r) => r.data);
+  },
 };

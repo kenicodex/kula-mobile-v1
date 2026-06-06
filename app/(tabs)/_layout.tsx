@@ -2,7 +2,6 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuthStore } from '@/store/auth.store';
 import { useTheme } from '@/hooks/useTheme';
 import { useStyles } from '@/hooks/useStyles';
 import { makeStyles, makeTabBarStyle, tabBarLabelStyle } from './layout.styles';
@@ -68,8 +67,6 @@ function CreateTabButton() {
 export default function TabsLayout() {
   const { theme } = useTheme();
   const tabBarStyle = makeTabBarStyle(theme);
-  const role = useAuthStore((s) => s.user?.role);
-  const isChef = role === 'chef';
 
   return (
     <Tabs
@@ -100,36 +97,31 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="saved"
+        name="create"
         options={{
-          title: 'Saved',
-          href: isChef ? null : '/saved',
+          title: '',
+          tabBarButton: () => <CreateTabButton />,
+        }}
+      />
+      <Tabs.Screen
+        name="bookings"
+        options={{
+          title: 'Bookings',
+          // Visible to everyone. Creators see an extra source toggle inside the
+          // screen to switch between bookings from clients and bookings they
+          // made to other creators.
           tabBarIcon: ({ focused }) => (
-            <TabIcon name="bookmark-outline" activeName="bookmark" focused={focused} />
+            <TabIcon name="calendar-outline" activeName="calendar" focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
-        name="create"
-        options={
-          isChef
-            ? {
-                title: '',
-                tabBarButton: () => <CreateTabButton />,
-              }
-            : {
-                href: null,
-              }
-        }
+        name="saved"
+        options={{ href: null }}
       />
       <Tabs.Screen
         name="orders"
-        options={{
-          title: 'Orders',
-          tabBarIcon: ({ focused }) => (
-            <TabIcon name="receipt-outline" activeName="receipt" focused={focused} />
-          ),
-        }}
+        options={{ href: null }}
       />
       <Tabs.Screen
         name="profile"

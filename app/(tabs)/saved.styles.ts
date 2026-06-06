@@ -56,6 +56,23 @@ export const makeStyles = (theme: Theme) =>
     gridContent: {
       padding: 1,
     },
+    loadingWrap: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    gridTile: {
+      flex: 1 / 3,
+      aspectRatio: 1,
+      padding: 1,
+    },
+    gridImage: {
+      width: '100%',
+      height: '100%',
+    },
+    gridImageEmpty: {
+      backgroundColor: theme.primaryMuted,
+    },
     emptyWrap: {
       alignItems: 'center',
       paddingTop: spacing[20],

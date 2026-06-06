@@ -12,7 +12,7 @@ export const makeStyles = (theme: Theme) =>
       padding: spacing[6],
       paddingBottom: spacing[10],
     },
-    chefCard: {
+    creatorCard: {
       backgroundColor: theme.surface,
       borderRadius: radius['2xl'],
       borderWidth: 1,
@@ -21,21 +21,21 @@ export const makeStyles = (theme: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
     },
-    chefBody: {
+    creatorBody: {
       marginLeft: spacing[3],
       flex: 1,
     },
-    chefNameRow: {
+    creatorNameRow: {
       flexDirection: 'row',
       alignItems: 'center',
     },
-    chefName: {
+    creatorName: {
       color: theme.ink,
       fontSize: 14,
       fontWeight: '700',
     },
-    chefIconSpacer: { marginLeft: 4 },
-    chefCuisine: {
+    creatorIconSpacer: { marginLeft: 4 },
+    creatorCuisine: {
       color: theme.inkMuted,
       fontSize: 12,
     },

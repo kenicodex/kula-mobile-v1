@@ -2,7 +2,7 @@ import api from './api';
 import type { Booking, BookingStatus } from '@/types';
 
 export interface CreateBookingPayload {
-  chefId: string;
+  creatorId: string;
   serviceType: string;
   hireType: 'instant' | 'scheduled';
   date: string;
@@ -17,6 +17,13 @@ export interface CreateBookingPayload {
   specialInstructions?: string;
 }
 
+export interface BookingPaymentIntent {
+  clientSecret: string;
+  paymentIntentId: string;
+  amount: number;
+  currency: string;
+}
+
 export const bookingsService = {
   create(payload: CreateBookingPayload) {
     return api.post<Booking>('/bookings', payload).then((r) => r.data);
@@ -28,25 +35,31 @@ export const bookingsService = {
       .then((r) => r.data);
   },
 
-  chefBookings(status?: BookingStatus) {
+  creatorBookings(status?: BookingStatus) {
     return api
-      .get<Booking[]>('/bookings/chef', { params: status ? { status } : {} })
+      .get<Booking[]>('/bookings/creator', { params: status ? { status } : {} })
       .then((r) => r.data);
   },
 
-  chefStats() {
+  creatorStats() {
     return api
       .get<{
         total: number;
         confirmed: number;
         completed: number;
         revenue: number;
-      }>('/bookings/chef/stats')
+      }>('/bookings/creator/stats')
       .then((r) => r.data);
   },
 
   get(id: string) {
     return api.get<Booking>(`/bookings/${id}`).then((r) => r.data);
+  },
+
+  pay(id: string) {
+    return api
+      .post<BookingPaymentIntent>(`/bookings/${id}/pay`)
+      .then((r) => r.data);
   },
 
   confirm(id: string) {

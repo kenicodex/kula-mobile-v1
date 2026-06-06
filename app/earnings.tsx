@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
+import { NavHeader } from '@/components/layout/NavHeader';
 import { bookingsService, ordersService } from '@/services';
 import { asUser } from '@/services/adapters';
 import { fmtDate, fmtMoney, fmtNumber } from '@/lib/format';
@@ -26,22 +26,21 @@ interface TxRow {
 export default function EarningsScreen() {
   const { theme } = useTheme();
   const styles = useStyles(makeStyles);
-  const router = useRouter();
   const [period, setPeriod] = useState<Period>('month');
 
   const { data: stats } = useQuery({
-    queryKey: ['chef', 'stats'],
-    queryFn: () => bookingsService.chefStats(),
+    queryKey: ['creator', 'stats'],
+    queryFn: () => bookingsService.creatorStats(),
   });
 
   const { data: bookings } = useQuery({
-    queryKey: ['chef', 'bookings'],
-    queryFn: () => bookingsService.chefBookings(),
+    queryKey: ['creator', 'bookings'],
+    queryFn: () => bookingsService.creatorBookings(),
   });
 
   const { data: orders } = useQuery({
-    queryKey: ['chef', 'orders'],
-    queryFn: () => ordersService.chefOrders(),
+    queryKey: ['creator', 'orders'],
+    queryFn: () => ordersService.creatorOrders(),
   });
 
   const transactions: TxRow[] = useMemo(() => {
@@ -90,22 +89,16 @@ export default function EarningsScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={10}
-          style={styles.backBtn}
-        >
-          <Ionicons name="chevron-back" size={20} color={theme.ink} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Earnings</Text>
-        <Pressable hitSlop={10} style={styles.headerIconBtn}>
-          <Ionicons name="download-outline" size={20} color={theme.ink} />
-        </Pressable>
-      </View>
+    <SafeAreaView style={styles.safe} edges={[]}>
+      <NavHeader
+        title="Earnings"
+        backVariant="circle"
+        rightAction={{
+          icon: 'download-outline',
+          onPress: () => {},
+          accessibilityLabel: 'Download statement',
+        }}
+      />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.periodSwitcher}>

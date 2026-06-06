@@ -3,13 +3,13 @@ import { PostItem } from '@/components/feed/PostCard';
 export const MOCK_POSTS: PostItem[] = [
   {
     id: 'p1',
-    chefId: '1',
-    chefName: 'Amaka Obi',
+    creatorId: '1',
+    creatorName: 'Amaka Obi',
     cuisine: 'Nigerian · Continental',
     timeAgo: '2h ago',
     caption:
       'Party jollof has a different aura 🔥 Made this for a 50-person gathering last weekend and they scraped the pot clean!',
-    hashtags: ['NigerianFood', 'PartyJollof', 'ChefLife'],
+    hashtags: ['NigerianFood', 'PartyJollof', 'CreatorLife'],
     imageUrl:
       'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=900&q=80&fit=crop',
     likes: 214,
@@ -17,8 +17,8 @@ export const MOCK_POSTS: PostItem[] = [
   },
   {
     id: 'p2',
-    chefId: '3',
-    chefName: 'Fatima A.',
+    creatorId: '3',
+    creatorName: 'Fatima A.',
     cuisine: 'Pastry · Desserts',
     timeAgo: '4h ago',
     caption: 'Three-tier red velvet for the Bello wedding — first one of three this weekend! 🎂',
@@ -30,8 +30,8 @@ export const MOCK_POSTS: PostItem[] = [
   },
   {
     id: 'p3',
-    chefId: '4',
-    chefName: 'Bayo Ade',
+    creatorId: '4',
+    creatorName: 'Bayo Ade',
     cuisine: 'Grills · Suya Specialist',
     timeAgo: '1d ago',
     caption: 'Fresh off the grill. Suya season is back — book early!',

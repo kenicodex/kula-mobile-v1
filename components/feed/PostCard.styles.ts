@@ -36,6 +36,7 @@ export const makeStyles = (theme: Theme) =>
     },
     image: {
       width: '100%',
+      
       aspectRatio: 1,
     },
     actionsRow: {

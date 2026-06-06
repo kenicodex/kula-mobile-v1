@@ -12,8 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
-import api from '@/services/api';
-import { apiErrorMessage } from '@/services';
+import { authService, apiErrorMessage } from '@/services';
 import { makeStyles } from './forgot-password.styles';
 
 // ─── Validation ───────────────────────────────────────────────────────────────
@@ -23,14 +22,6 @@ const schema = z.object({
 });
 
 type FormValues = z.infer<typeof schema>;
-
-// ─── API call ─────────────────────────────────────────────────────────────────
-// NOTE: The backend does not yet expose POST /auth/forgot-password. The request
-// will surface as a 404 until the endpoint is added — wire it once available.
-
-async function forgotPasswordRequest(email: string): Promise<void> {
-  await api.post('/auth/forgot-password', { email });
-}
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
@@ -52,10 +43,19 @@ export default function ForgotPasswordScreen() {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: ({ email }: FormValues) => forgotPasswordRequest(email),
-    onSuccess: () => {
+    mutationFn: ({ email }: FormValues) => authService.forgotPassword(email),
+    onSuccess: (res) => {
       setSentEmail(getValues('email'));
       setSent(true);
+      // In non-production the backend returns a devToken so the reset flow can
+      // be tested without an email service. Jump straight to the reset screen
+      // with the token prefilled.
+      if (res.devToken) {
+        router.push({
+          pathname: '/(auth)/reset-password',
+          params: { token: res.devToken, email: getValues('email') },
+        });
+      }
     },
     onError: (err) => {
       showMessage({

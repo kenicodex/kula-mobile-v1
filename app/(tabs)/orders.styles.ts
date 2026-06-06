@@ -113,7 +113,7 @@ export const makeStyles = (theme: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
     },
-    orderChefName: {
+    orderCreatorName: {
       flex: 1,
       color: theme.ink,
       fontSize: 14,

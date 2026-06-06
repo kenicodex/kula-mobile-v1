@@ -7,8 +7,10 @@ export type Service =
   | 'cooking_class';
 
 interface BookingDraft {
-  chefId?: string;
-  chefName?: string;
+  creatorId?: string;
+  creatorName?: string;
+  creatorAvatar?: string;
+  creatorCuisine?: string;
   service?: Service;
   serviceLabel?: string;
   date?: string; // ISO yyyy-mm-dd
@@ -18,10 +20,15 @@ interface BookingDraft {
   notes?: string;
   address?: string;
   city?: string;
+  coordinates?: { lat: number; lng: number };
   payment: 'card' | 'transfer' | 'wallet';
   // Set after a successful booking create; used by the confirmation screen.
   createdBookingId?: string;
+  createdBookingReference?: string;
   estimatedTotal?: number;
+  // Payment intent created after booking confirm.
+  paymentIntentId?: string;
+  paymentClientSecret?: string;
 }
 
 interface BookingState extends BookingDraft {
@@ -30,7 +37,7 @@ interface BookingState extends BookingDraft {
 }
 
 const initial: BookingDraft = {
-  chefId: undefined,
+  creatorId: undefined,
   service: undefined,
   serviceLabel: undefined,
   date: undefined,
@@ -38,6 +45,9 @@ const initial: BookingDraft = {
   guests: 2,
   dietary: undefined,
   notes: undefined,
+  address: undefined,
+  city: undefined,
+  coordinates: undefined,
   payment: 'card',
 };
 

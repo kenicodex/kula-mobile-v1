@@ -12,12 +12,12 @@ interface BookingStepHeaderProps {
   onBack?: () => void;
 }
 
-const STEP_LABELS = ['Service', 'Date', 'Details', 'Pay'];
+const STEP_LABELS = ['Service', 'Date', 'Details', 'Location', 'Pay'];
 
 export function BookingStepHeader({
   title,
   step,
-  totalSteps = 4,
+  totalSteps = 5,
   onBack,
 }: BookingStepHeaderProps) {
   const { theme } = useTheme();

@@ -13,7 +13,16 @@ export default function BookingConfirmation() {
   const { theme } = useTheme();
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const { serviceLabel, date, time, guests, reset } = useBookingStore();
+  const {
+    serviceLabel,
+    creatorName,
+    date,
+    time,
+    guests,
+    createdBookingReference,
+    createdBookingId,
+    reset,
+  } = useBookingStore();
 
   useEffect(() => {
     return () => {
@@ -42,20 +51,23 @@ export default function BookingConfirmation() {
 
         <Text style={styles.title}>Booking confirmed!</Text>
         <Text style={styles.subtitle}>
-          Your chef has been notified. You'll receive a confirmation shortly.
+          Your creator has been notified. You'll receive a confirmation shortly.
         </Text>
 
         <View style={styles.refCard}>
           <Text style={styles.refLabel}>Reference</Text>
           <Text style={styles.refValue}>
-            KULA-{Date.now().toString().slice(-6)}
+            {createdBookingReference ??
+              (createdBookingId
+                ? `KULA-${createdBookingId.slice(-6).toUpperCase()}`
+                : 'KULA-PENDING')}
           </Text>
 
           <View style={styles.divider} />
 
           <View style={styles.rowsList}>
             <Row icon="restaurant-outline" label="Service" value={serviceLabel ?? 'Private Dining'} />
-            <Row icon="person-outline" label="Chef" value="Amaka Obi" />
+            <Row icon="person-outline" label="Creator" value={creatorName ?? '—'} />
             <Row icon="calendar-outline" label="Date" value={fmtDate} />
             <Row icon="time-outline" label="Time" value={time ?? '—'} />
             <Row icon="people-outline" label="Guests" value={`${guests}`} />

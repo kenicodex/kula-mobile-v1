@@ -93,7 +93,7 @@ export default function ProfileStep2Screen() {
         <View style={styles.titleBlock}>
           <Text style={styles.title}>Food preferences</Text>
           <Text style={styles.subtitle}>
-            Help chefs tailor meals to your needs. You can update this anytime.
+            Help creators tailor meals to your needs. You can update this anytime.
           </Text>
         </View>
 

@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Avatar } from '@/components/ui/Avatar';
+import { NavHeader } from '@/components/layout/NavHeader';
 import { messagingService } from '@/services';
 import { useAuthStore } from '@/store/auth.store';
 import { fmtRelative } from '@/lib/format';
@@ -23,14 +24,13 @@ interface Row {
 }
 
 function toRow(c: Conversation, selfId?: string): Row {
-  const otherParticipants = (c.participantUsers ?? []).filter(
-    (u) => u.id !== selfId,
-  );
-  const other = otherParticipants[0];
+  const other = (c.participants ?? [])
+    .map((p) => p.user)
+    .find((u) => u && u.id !== selfId);
   return {
     id: c.id,
     name: other?.name ?? 'Conversation',
-    avatar: other?.avatar,
+    avatar: other?.avatar ?? undefined,
     lastMessage: c.lastMessage?.text ?? '—',
     timeAgo: fmtRelative(c.updatedAt),
     unread:
@@ -59,32 +59,27 @@ export default function InboxScreen() {
   }, [data, user?.id, query]);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <Pressable onPress={() => router.back()} hitSlop={10}>
-            <Ionicons name="chevron-back" size={24} color={theme.ink} />
-          </Pressable>
-          <Text style={styles.headerTitle}>Messages</Text>
-          <Pressable hitSlop={10}>
-            <Ionicons name="create-outline" size={22} color={theme.ink} />
-          </Pressable>
+    <SafeAreaView style={styles.safe} edges={[]}>
+      <NavHeader
+        title="Messages"
+        titleSize="lg"
+        rightAction={{
+          icon: 'create-outline',
+          onPress: () => {},
+          accessibilityLabel: 'New message',
+        }}
+      >
+        <View style={styles.searchBar}>
+          <Ionicons name="search" size={18} color={theme.inkMuted} />
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search messages…"
+            placeholderTextColor={theme.inkFaint}
+            style={styles.searchInput}
+          />
         </View>
-        <View style={styles.searchWrap}>
-          <View style={styles.searchBar}>
-            <Ionicons name="search" size={18} color={theme.inkMuted} />
-            <TextInput
-              value={query}
-              onChangeText={setQuery}
-              placeholder="Search messages…"
-              placeholderTextColor={theme.inkFaint}
-              style={styles.searchInput}
-            />
-          </View>
-        </View>
-      </View>
+      </NavHeader>
 
       <FlatList
         data={rows}
@@ -105,7 +100,12 @@ export default function InboxScreen() {
         }
         renderItem={({ item }) => (
           <Pressable
-            onPress={() => router.push(`/chat/${item.id}`)}
+            onPress={() =>
+              router.push({
+                pathname: '/chat/[id]',
+                params: { id: item.id, name: item.name, avatar: item.avatar ?? '' },
+              })
+            }
             style={({ pressed }) => [
               styles.row,
               pressed ? styles.rowPressed : null,

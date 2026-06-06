@@ -1,9 +1,10 @@
 import React from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { NavHeader } from '@/components/layout/NavHeader';
+import { SignedImage } from '@/components/ui/SignedImage';
 import { feedService } from '@/services';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
@@ -24,16 +25,8 @@ export default function HashtagScreen() {
   const posts = data ?? [];
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={10} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={20} color={theme.ink} />
-        </Pressable>
-        <Text style={styles.headerTitle}>#{tag}</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={styles.safe} edges={[]}>
+      <NavHeader title={`#${tag}`} backVariant="circle" />
 
       <View style={styles.countBar}>
         <Text style={styles.countText}>{posts.length} posts</Text>
@@ -62,11 +55,11 @@ export default function HashtagScreen() {
               onPress={() => router.push(`/post/${item.id}`)}
               style={styles.cell}
             >
-              {uri ? (
-                <Image source={{ uri }} style={styles.cellImage} resizeMode="cover" />
-              ) : (
-                <View style={styles.cellPlaceholder} />
-              )}
+              <SignedImage
+                uri={uri}
+                style={styles.cellImage}
+                fallbackStyle={styles.cellPlaceholder}
+              />
             </Pressable>
           );
         }}

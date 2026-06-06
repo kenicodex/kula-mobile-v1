@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
+import { NavHeader } from '@/components/layout/NavHeader';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
 import { makeStyles } from './checkout.styles';
@@ -35,20 +36,8 @@ export default function CartCheckoutScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.topBar}>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={10}
-          style={styles.backButton}
-        >
-          <Ionicons name="chevron-back" size={20} color={theme.ink} />
-        </Pressable>
-        <Text style={styles.topTitle}>Checkout</Text>
-        <View style={styles.topRightSpacer} />
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={[]}>
+      <NavHeader title="Checkout" backVariant="circle" />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>

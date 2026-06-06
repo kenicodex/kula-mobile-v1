@@ -29,7 +29,7 @@ export default function OrderConfirmation() {
         <View style={styles.detailsCard}>
           <Row icon="pricetag-outline" label="Order ID" value="#ORD-2847" />
           <Divider />
-          <Row icon="person-outline" label="Chef" value="Bayo Ade" />
+          <Row icon="person-outline" label="Creator" value="Bayo Ade" />
           <Divider />
           <Row icon="time-outline" label="Est. delivery" value="35–50 min" />
           <Divider />

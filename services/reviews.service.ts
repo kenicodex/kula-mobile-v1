@@ -2,7 +2,7 @@ import api from './api';
 import type { Review } from '@/types';
 
 export interface CreateReviewPayload {
-  chefId: string;
+  creatorId: string;
   bookingId: string;
   rating: number;
   comment?: string;
@@ -15,15 +15,15 @@ export interface CreateReviewPayload {
 }
 
 export const reviewsService = {
-  forChef(chefId: string, params: { page?: number; limit?: number } = {}) {
+  forCreator(creatorId: string, params: { page?: number; limit?: number } = {}) {
     return api
-      .get<Review[]>(`/reviews/chef/${chefId}`, { params })
+      .get<Review[]>(`/reviews/creator/${creatorId}`, { params })
       .then((r) => r.data);
   },
 
-  chefRating(chefId: string) {
+  creatorRating(creatorId: string) {
     return api
-      .get<{ average: number; count: number }>(`/reviews/chef/${chefId}/rating`)
+      .get<{ average: number; count: number }>(`/reviews/creator/${creatorId}/rating`)
       .then((r) => r.data);
   },
 

@@ -9,13 +9,19 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { spacing } from '@/constants/commonStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { showMessage } from 'react-native-flash-message';
 import { Avatar } from '@/components/ui/Avatar';
-import { messagingService, apiErrorMessage } from '@/services';
+import {
+  messagingService,
+  apiErrorMessage,
+  getChatSocket,
+  sendMessageOverSocket,
+} from '@/services';
 import { useAuthStore } from '@/store/auth.store';
 import { fmtTime } from '@/lib/format';
 import type { Message as ChatMessage } from '@/types';
@@ -26,8 +32,13 @@ import { makeStyles } from './[id].styles';
 export default function ChatScreen() {
   const { theme } = useTheme();
   const styles = useStyles(makeStyles);
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, name, avatar } = useLocalSearchParams<{
+    id: string;
+    name?: string;
+    avatar?: string;
+  }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const qc = useQueryClient();
   const { user } = useAuthStore();
   const [text, setText] = useState('');
@@ -37,22 +48,74 @@ export default function ChatScreen() {
     queryKey: ['messages', id],
     queryFn: () => messagingService.messages(id),
     enabled: !!id,
-    refetchInterval: 5000,
   });
 
-  // Mark conversation read when entering
+  // Mark conversation read when entering, and refresh the inbox so the unread
+  // badge clears.
   useEffect(() => {
-    if (id) {
-      messagingService.markRead(id).catch(() => undefined);
-    }
-  }, [id]);
+    if (!id) return;
+    messagingService
+      .markRead(id)
+      .then(() => qc.invalidateQueries({ queryKey: ['conversations'] }))
+      .catch(() => undefined);
+  }, [id, qc]);
+
+  // Socket lifecycle: join the conversation room, listen for inbound messages,
+  // and leave on unmount. New messages are appended to the messages cache so
+  // they appear instantly without a refetch.
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+
+    getChatSocket()
+      .then((socket) => {
+        if (cancelled) return;
+        socket.emit('join_conversation', { conversationId: id });
+
+        const onNewMessage = (msg: ChatMessage) => {
+          if (msg.conversationId !== id) return;
+          qc.setQueryData<ChatMessage[]>(['messages', id], (prev) => {
+            const list = prev ?? [];
+            if (list.some((m) => m.id === msg.id)) return list;
+            return [...list, msg];
+          });
+          qc.invalidateQueries({ queryKey: ['conversations'] });
+          setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+        };
+        socket.on('new_message', onNewMessage);
+
+        cleanup = () => {
+          socket.off('new_message', onNewMessage);
+          socket.emit('leave_conversation', { conversationId: id });
+        };
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
+  }, [id, qc]);
 
   const send = useMutation({
-    mutationFn: (body: string) =>
-      messagingService.send(id, { text: body }),
-    onSuccess: () => {
+    mutationFn: async (body: string) => {
+      try {
+        return await sendMessageOverSocket(id, body);
+      } catch {
+        // Fall back to REST so the message still gets sent if the socket
+        // isn't reachable.
+        return messagingService.send(id, { text: body });
+      }
+    },
+    onSuccess: (msg) => {
       setText('');
-      qc.invalidateQueries({ queryKey: ['messages', id] });
+      qc.setQueryData<ChatMessage[]>(['messages', id], (prev) => {
+        const list = prev ?? [];
+        if (list.some((m) => m.id === msg.id)) return list;
+        return [...list, msg];
+      });
+      qc.invalidateQueries({ queryKey: ['conversations'] });
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
     },
     onError: (err) => {
@@ -76,17 +139,15 @@ export default function ChatScreen() {
   const hasText = !!text.trim();
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.header}>
+    <SafeAreaView style={styles.safe} edges={[]}>
+      <View style={[styles.header, { paddingTop: insets.top + spacing[2] }]}>
         <Pressable onPress={() => router.back()} hitSlop={10} style={styles.backButton}>
           <Ionicons name="chevron-back" size={20} color={theme.ink} />
         </Pressable>
         <View style={styles.headerCenter}>
-          <Avatar name="Chat" size="sm" />
+          <Avatar uri={avatar || undefined} name={name ?? 'Chat'} size="sm" />
           <View style={styles.headerTextWrap}>
-            <Text style={styles.headerTitle}>Conversation</Text>
+            <Text style={styles.headerTitle}>{name ?? 'Conversation'}</Text>
             <Text style={styles.headerSubtitle}>{list.length} messages</Text>
           </View>
         </View>

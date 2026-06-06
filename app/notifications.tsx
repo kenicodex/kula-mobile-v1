@@ -1,9 +1,9 @@
 import React from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { NavHeader } from '@/components/layout/NavHeader';
 import { notificationsService } from '@/services';
 import { fmtRelative } from '@/lib/format';
 import type { Notification } from '@/types';
@@ -27,7 +27,6 @@ const ICON_MAP: Record<
 export default function NotificationsScreen() {
   const { theme } = useTheme();
   const styles = useStyles(makeStyles);
-  const router = useRouter();
   const qc = useQueryClient();
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
@@ -48,26 +47,20 @@ export default function NotificationsScreen() {
   const items = data?.data ?? [];
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={10}
-          style={styles.backBtn}
-        >
-          <Ionicons name="chevron-back" size={20} color={theme.ink} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Notifications</Text>
-        <Pressable
-          onPress={() => markAll.mutate()}
-          hitSlop={10}
-          style={styles.readAllBtn}
-        >
-          <Text style={styles.readAllText}>Read</Text>
-        </Pressable>
-      </View>
+    <SafeAreaView style={styles.safe} edges={[]}>
+      <NavHeader
+        title="Notifications"
+        backVariant="circle"
+        right={
+          <Pressable
+            onPress={() => markAll.mutate()}
+            hitSlop={10}
+            style={styles.readAllBtn}
+          >
+            <Text style={styles.readAllText}>Read</Text>
+          </Pressable>
+        }
+      />
 
       <FlatList
         data={items}

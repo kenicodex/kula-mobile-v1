@@ -30,23 +30,23 @@ const slides: Slide[] = [
   {
     id: "1",
     image: require("@/assets/images/onboarding/slide-1.jpg"),
-    title: "Find Your Perfect Chef",
+    title: "Join the Food Community",
     subtitle:
-      "Browse verified professional chefs near you, check their menus, ratings, and specialties before booking.",
+      "Follow creators and home cooks, share your own dishes, and get inspired by food moments from people near you.",
   },
   {
     id: "2",
     image: require("@/assets/images/onboarding/slide-2.jpg"),
-    title: "Book in Minutes",
+    title: "Share Every Bite",
     subtitle:
-      "Instantly book a chef for any occasion — from intimate dinners to large events. Flexible scheduling that works for you.",
+      "Post photos and reels of what you cook and eat, like and comment, and connect with people who love food as much as you do.",
   },
   {
     id: "3",
     image: require("@/assets/images/onboarding/slide-3.jpg"),
-    title: "Enjoy Restaurant Quality at Home",
+    title: "Discover & Book Creators",
     subtitle:
-      "Experience fine dining in the comfort of your own home. Fresh ingredients, custom menus, memorable moments.",
+      "Found a creator you love in the feed? Explore their menu and ratings, then book them for any occasion — all in one app.",
   },
 ];
 
@@ -85,7 +85,7 @@ export default function OnboardingScreen() {
 
   const goNext = () => {
     if (isLast) {
-      router.push("/(auth)/account-type");
+      router.push("/(auth)/sign-up");
     } else {
       flatListRef.current?.scrollToIndex({
         index: activeIndex + 1,
@@ -95,7 +95,7 @@ export default function OnboardingScreen() {
   };
 
   const skip = () => {
-    router.push("/(auth)/account-type");
+    router.push("/(auth)/sign-up");
   };
 
   return (

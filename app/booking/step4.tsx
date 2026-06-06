@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { showMessage } from 'react-native-flash-message';
 import { BookingStepHeader } from '@/components/booking/BookingStepHeader';
 import { Button } from '@/components/ui/Button';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
 import { useBookingStore } from '@/store/booking.store';
-import { bookingsService, apiErrorMessage } from '@/services';
+import { bookingsService, creatorsService, apiErrorMessage } from '@/services';
 import { fmtMoney } from '@/lib/format';
 import { makeStyles } from './step4.styles';
 
@@ -20,6 +20,8 @@ const SERVICE_TO_BACKEND: Record<string, string> = {
   meal_prep: 'meal_prep',
   cooking_class: 'virtual_class',
 };
+
+const PLATFORM_FEE_RATE = 0.05;
 
 type PayMethod = {
   id: 'card' | 'transfer' | 'wallet';
@@ -39,8 +41,8 @@ export default function BookingStep4() {
   const styles = useStyles(makeStyles);
   const router = useRouter();
   const {
-    chefId,
-    chefName,
+    creatorId,
+    creatorName,
     service,
     serviceLabel,
     date,
@@ -50,9 +52,29 @@ export default function BookingStep4() {
     notes,
     address,
     city,
+    coordinates,
     payment,
     set,
   } = useBookingStore();
+
+  const { data: creator } = useQuery({
+    queryKey: ['creator', creatorId],
+    queryFn: () => creatorsService.get(creatorId as string),
+    enabled: !!creatorId,
+  });
+
+  const { serviceFee, platformFee, total } = useMemo(() => {
+    // Backend returns CreatorPricing rows keyed by hireType (aliased to
+    // serviceType on the wire); fall back to the first row if no scheduled.
+    const pricing = (creator?.pricing ?? []) as Array<{ serviceType: string; basePrice: number }>;
+    const rate =
+      pricing.find((p) => p.serviceType === 'scheduled')?.basePrice ??
+      pricing[0]?.basePrice ??
+      0;
+    const fee = Math.round(rate * Math.max(1, guests));
+    const platform = Math.round(fee * PLATFORM_FEE_RATE);
+    return { serviceFee: fee, platformFee: platform, total: fee + platform };
+  }, [creator, guests]);
 
   const fmtDate = date
     ? new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
@@ -63,29 +85,34 @@ export default function BookingStep4() {
       })
     : '—';
 
-  const total = 47250; // pricing engine TBD on backend
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
-      if (!chefId) throw new Error('Chef not selected');
-      const backendService = SERVICE_TO_BACKEND[service ?? 'private_dining'] ?? 'private_dining';
-      const booking = await bookingsService.create({
-        chefId,
+      if (!creatorId) throw new Error('Creator not selected');
+      if (!address || !city) throw new Error('Address is required');
+      const backendService =
+        SERVICE_TO_BACKEND[service ?? 'private_dining'] ?? 'private_dining';
+      return bookingsService.create({
+        creatorId,
         serviceType: backendService,
         hireType: 'scheduled',
         date: date ?? new Date().toISOString().slice(0, 10),
         timeSlot: time ? { start: time, end: time } : undefined,
         numberOfGuests: guests,
         location: {
-          address: address ?? 'TBD',
-          city: city ?? 'Lagos',
+          address,
+          city,
+          coordinates,
         },
         occasion: dietary,
         specialInstructions: notes,
       });
-      return booking;
     },
     onSuccess: (booking) => {
-      set({ createdBookingId: booking.id, estimatedTotal: total });
+      set({
+        createdBookingId: booking.id,
+        createdBookingReference: booking.reference,
+        estimatedTotal: booking.totalAmount || total,
+      });
       router.replace('/booking/confirmation');
     },
     onError: (err) => {
@@ -101,25 +128,26 @@ export default function BookingStep4() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
-      <BookingStepHeader title="Review & Pay" step={4} onBack={() => router.back()} />
+      <BookingStepHeader title="Review & Pay" step={5} onBack={() => router.back()} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <SummarySection title="Booking summary">
           <Row label="Service" value={serviceLabel ?? 'Private Dining'} />
-          <Row label="Chef" value={chefName ?? '—'} />
+          <Row label="Creator" value={creatorName ?? '—'} />
           <Row label="Date" value={fmtDate} />
           <Row label="Time" value={time ?? '—'} />
           <Row label="Guests" value={`${guests} people`} />
           <Row label="Dietary" value={dietary ?? 'None specified'} />
+          <Row label="Location" value={[address, city].filter(Boolean).join(', ') || '—'} />
         </SummarySection>
 
         <View style={styles.sectionGap} />
 
         <SummarySection title="Payment breakdown">
-          <Row label="Service fee" value="₦45,000" />
-          <Row label="Platform fee (5%)" value="₦2,250" />
+          <Row label="Service fee" value={fmtMoney(serviceFee)} />
+          <Row label="Platform fee (5%)" value={fmtMoney(platformFee)} />
           <View style={styles.innerDivider} />
-          <Row label="Total" value="₦47,250" bold />
+          <Row label="Total" value={fmtMoney(total)} bold />
         </SummarySection>
 
         <Text style={styles.paymentTitle}>Payment method</Text>
@@ -163,9 +191,10 @@ export default function BookingStep4() {
 
       <View style={styles.footer}>
         <Button
-          label={`Confirm & Pay ${fmtMoney(total)}`}
+          label="Confirm Booking"
           size="lg"
           loading={isPending}
+          disabled={total <= 0}
           onPress={confirm}
         />
       </View>

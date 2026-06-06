@@ -1,5 +1,9 @@
 // Design tokens for Kula Mobile
 
+// Theme-independent: like buttons stay the same red across light/dark, matching
+// the universal "love/like" affordance used by Instagram, X, etc.
+export const LIKE_RED = '#FF3040';
+
 export interface Theme {
   primary: string;
   primaryDeep: string;

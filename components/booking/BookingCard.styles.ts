@@ -16,7 +16,7 @@ export const makeStyles = (theme: Theme) =>
       flex: 1,
       marginLeft: spacing[3],
     },
-    chefName: {
+    creatorName: {
       color: theme.ink,
       fontSize: 14,
       fontWeight: '700',

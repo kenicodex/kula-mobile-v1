@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import * as SecureStore from 'expo-secure-store';
 import { User } from '@/types';
+import { disconnectChatSocket } from '@/services/socket';
 
 const TOKEN_KEY = 'kula_token';
 
@@ -68,6 +69,7 @@ export const useAuthStore = create<AuthState>()(
         } catch {
           // ignore
         }
+        disconnectChatSocket();
         set({ user: null, token: null, isLoading: false });
       },
 

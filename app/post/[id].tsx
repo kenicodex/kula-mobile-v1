@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -16,12 +15,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { showMessage } from 'react-native-flash-message';
 import { Avatar } from '@/components/ui/Avatar';
-import { feedService, apiErrorMessage } from '@/services';
-import { asUser, idOf } from '@/services/adapters';
+import { SignedImage } from '@/components/ui/SignedImage';
+import { FeedVideo } from '@/components/feed/FeedVideo';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { feedService, savedService, apiErrorMessage } from '@/services';
 import { useAuthStore } from '@/store/auth.store';
 import { fmtRelative } from '@/lib/format';
+import { sharePost } from '@/lib/sharePost';
+import { LIKE_RED } from '@/constants/colors';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
+import type { Post } from '@/types';
 import { makeStyles } from './[id].styles';
 
 export default function PostDetailScreen() {
@@ -45,15 +49,60 @@ export default function PostDetailScreen() {
   });
 
   const [liked, setLiked] = useState(false);
-  const [bookmarked, setBookmarked] = useState(false);
   const [comment, setComment] = useState('');
+  const commentInputRef = useRef<TextInput>(null);
+
+  const postKey = ['post', id] as const;
+
+  const savedPostsQuery = useQuery({
+    queryKey: ['saved', 'posts'],
+    queryFn: () => savedService.listPosts(),
+  });
+
+  const isSaved = useMemo(
+    () => (savedPostsQuery.data ?? []).some((p) => p.id === id),
+    [savedPostsQuery.data, id],
+  );
+
+  const toggleSave = useMutation({
+    mutationFn: () => (isSaved ? savedService.unsavePost(id) : savedService.savePost(id)),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['saved', 'posts'] }),
+    onError: (err) => {
+      showMessage({
+        message: apiErrorMessage(err, 'Could not update saved list.'),
+        type: 'danger',
+      });
+    },
+  });
 
   const like = useMutation({
-    mutationFn: () => (liked ? feedService.unlike(id) : feedService.like(id)),
-    onMutate: () => setLiked((p) => !p),
-    onError: () => setLiked((p) => !p),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['post', id] }),
+    // Pass `nextLiked` explicitly so the request can't race with state updates.
+    mutationFn: (nextLiked: boolean) =>
+      nextLiked ? feedService.like(id) : feedService.unlike(id),
+    onSuccess: (res, nextLiked) => {
+      setLiked(nextLiked);
+      const current = qc.getQueryData<Post>(postKey);
+      if (current && typeof (res as { likeCount?: number })?.likeCount === 'number') {
+        qc.setQueryData<Post>(postKey, {
+          ...current,
+          likeCount: (res as { likeCount: number }).likeCount,
+        });
+      } else {
+        qc.invalidateQueries({ queryKey: postKey });
+      }
+    },
+    onError: (err) => {
+      showMessage({
+        message: apiErrorMessage(err, 'Could not update like.'),
+        type: 'danger',
+      });
+    },
   });
+
+  const toggleLike = () => {
+    if (like.isPending) return;
+    like.mutate(!liked);
+  };
 
   const addComment = useMutation({
     mutationFn: (text: string) => feedService.comment(id, text),
@@ -70,6 +119,18 @@ export default function PostDetailScreen() {
     },
   });
 
+  const focusCommentInput = () => commentInputRef.current?.focus();
+
+  const onShare = () => {
+    if (!post) return;
+    return sharePost({
+      id: post.id,
+      authorName,
+      caption: post.caption,
+      mediaUrl: post.mediaUrls?.[0] ?? null,
+    });
+  };
+
   if (isLoading || !post) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
@@ -81,8 +142,9 @@ export default function PostDetailScreen() {
     );
   }
 
-  const author = asUser(post.authorId);
+  const author = post.author ?? null;
   const authorName = author?.name ?? 'Author';
+  const authorId = author?.id ?? (typeof post.authorId === 'string' ? post.authorId : '');
   const cuisine = '';
 
   return (
@@ -96,14 +158,14 @@ export default function PostDetailScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Media */}
           <View>
-            {post.mediaUrls?.[0] ? (
-              <Image
-                source={{ uri: post.mediaUrls[0] }}
-                style={styles.mediaImage}
-                resizeMode="cover"
-              />
+            {post.type === 'video' && post.mediaUrls?.[0] ? (
+              <FeedVideo uri={post.mediaUrls[0]} style={styles.mediaImage} />
             ) : (
-              <View style={styles.mediaPlaceholder} />
+              <SignedImage
+                uri={post.mediaUrls?.[0]}
+                style={styles.mediaImage}
+                fallbackStyle={styles.mediaPlaceholder}
+              />
             )}
             <Pressable
               onPress={() => router.back()}
@@ -111,24 +173,31 @@ export default function PostDetailScreen() {
             >
               <Ionicons name="chevron-back" size={22} color={theme.white} />
             </Pressable>
-            <Pressable style={[styles.mediaButton, styles.mediaButtonRight]}>
-              <Ionicons name="ellipsis-horizontal" size={20} color={theme.white} />
+            <Pressable
+              onPress={() => toggleSave.mutate()}
+              disabled={toggleSave.isPending}
+              style={[styles.mediaButton, styles.mediaButtonRight]}
+            >
+              <Ionicons
+                name={isSaved ? 'bookmark' : 'bookmark-outline'}
+                size={20}
+                color={theme.white}
+              />
             </Pressable>
           </View>
 
-          {/* Chef header */}
+          {/* Creator header */}
           <Pressable
-            onPress={() => router.push(`/chefs/${idOf(post.authorId)}`)}
+            onPress={() => authorId && router.push(`/creators/${authorId}`)}
             style={styles.authorRow}
           >
             <Avatar uri={author?.avatar} name={authorName} size="sm" />
             <View style={styles.authorBody}>
               <View style={styles.authorTopRow}>
                 <Text style={styles.authorName}>{authorName}</Text>
-                <Ionicons
-                  name="checkmark-circle"
+                <VerifiedBadge
+                  role={author?.role}
                   size={13}
-                  color={theme.primary}
                   style={styles.authorBadgeSpacer}
                 />
               </View>
@@ -140,25 +209,30 @@ export default function PostDetailScreen() {
 
           {/* Actions */}
           <View style={styles.actionsRow}>
-            <Pressable onPress={() => like.mutate()} hitSlop={8} style={styles.actionLeft}>
+            <Pressable
+              onPress={toggleLike}
+              disabled={like.isPending}
+              hitSlop={8}
+              style={styles.actionItem}
+            >
               <Ionicons
                 name={liked ? 'heart' : 'heart-outline'}
-                size={24}
-                color={liked ? theme.error : theme.ink}
-              />
-              <Text style={styles.actionCount}>{post.likeCount}</Text>
-            </Pressable>
-            <View style={styles.actionLeft}>
-              <Ionicons name="chatbubble-outline" size={22} color={theme.ink} />
-              <Text style={styles.actionCount}>{post.commentCount}</Text>
-            </View>
-            <View style={styles.flexSpacer} />
-            <Pressable hitSlop={8} onPress={() => setBookmarked((p) => !p)}>
-              <Ionicons
-                name={bookmarked ? 'bookmark' : 'bookmark-outline'}
                 size={22}
-                color={bookmarked ? theme.primary : theme.ink}
+                color={liked ? LIKE_RED : theme.ink}
               />
+              <Text style={[styles.actionLabel, liked && { color: LIKE_RED }]}>
+                {post.likeCount}
+              </Text>
+            </Pressable>
+            <View style={styles.actionDivider} />
+            <Pressable onPress={focusCommentInput} hitSlop={8} style={styles.actionItem}>
+              <Ionicons name="chatbubble-outline" size={20} color={theme.ink} />
+              <Text style={styles.actionLabel}>{post.commentCount}</Text>
+            </Pressable>
+            <View style={styles.actionDivider} />
+            <Pressable onPress={onShare} hitSlop={8} style={styles.actionItem}>
+              <Ionicons name="paper-plane-outline" size={20} color={theme.ink} />
+              <Text style={styles.actionLabel}>Share</Text>
             </Pressable>
           </View>
 
@@ -191,7 +265,7 @@ export default function PostDetailScreen() {
                 <Text style={styles.commentsEmpty}>Be the first to comment.</Text>
               ) : (
                 (comments ?? []).map((c) => {
-                  const u = asUser(c.authorId);
+                  const u = c.author ?? null;
                   return (
                     <View key={c.id} style={styles.commentRow}>
                       <Avatar uri={u?.avatar} name={u?.name ?? 'User'} size="sm" />
@@ -219,11 +293,17 @@ export default function PostDetailScreen() {
           <Avatar uri={user?.avatar} name={user?.name ?? 'You'} size="sm" />
           <View style={styles.commentInputWrap}>
             <TextInput
+              ref={commentInputRef}
               value={comment}
               onChangeText={setComment}
               placeholder="Add a comment…"
               placeholderTextColor={theme.inkFaint}
               style={styles.commentInput}
+              returnKeyType="send"
+              onSubmitEditing={() => {
+                const text = comment.trim();
+                if (text && !addComment.isPending) addComment.mutate(text);
+              }}
             />
           </View>
           <Pressable

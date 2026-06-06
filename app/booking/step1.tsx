@@ -1,14 +1,17 @@
 import React from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
 import { BookingStepHeader } from '@/components/booking/BookingStepHeader';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { useStyles } from '@/hooks/useStyles';
 import { useTheme } from '@/hooks/useTheme';
 import { useBookingStore, Service } from '@/store/booking.store';
+import { creatorsService } from '@/services';
+import { asUser } from '@/services/adapters';
 import { makeStyles } from './step1.styles';
 
 type ServiceItem = {
@@ -30,37 +33,64 @@ export default function BookingStep1() {
   const { theme } = useTheme();
   const styles = useStyles(makeStyles);
   const router = useRouter();
-  const { chefId } = useLocalSearchParams<{ chefId?: string }>();
+  const { creatorId } = useLocalSearchParams<{ creatorId?: string }>();
   const { service, set } = useBookingStore();
 
+  const { data: creator, isLoading } = useQuery({
+    queryKey: ['creator', creatorId],
+    queryFn: () => creatorsService.get(creatorId as string),
+    enabled: !!creatorId,
+  });
+
+  const creatorUser = asUser(creator?.user) ?? asUser(creator?.userId);
+  const creatorName = creatorUser?.name ?? 'Creator';
+  const creatorCuisine = (creator?.cuisineTypes ?? []).join(' · ');
+
   React.useEffect(() => {
-    if (chefId) set({ chefId });
-  }, [chefId]);
+    if (creatorId) {
+      set({
+        creatorId,
+        creatorName,
+        creatorAvatar: creatorUser?.avatar,
+        creatorCuisine,
+      });
+    }
+  }, [creatorId, creatorName, creatorUser?.avatar, creatorCuisine]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
-      <BookingStepHeader title="Book a Chef" step={1} onBack={() => router.back()} />
+      <BookingStepHeader title="Book a Creator" step={1} onBack={() => router.back()} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.chefCard}>
-          <Avatar name="Amaka Obi" size="md" />
-          <View style={styles.chefBody}>
-            <View style={styles.chefNameRow}>
-              <Text style={styles.chefName}>Amaka Obi</Text>
-              <Ionicons
-                name="checkmark-circle"
-                size={13}
-                color={theme.primary}
-                style={styles.chefIconSpacer}
-              />
-            </View>
-            <Text style={styles.chefCuisine}>Nigerian · Continental</Text>
-          </View>
-          <View style={styles.ratingRow}>
-            <Ionicons name="star" size={13} color="#FFB020" />
-            <Text style={styles.ratingText}>4.8</Text>
-          </View>
+        <View style={styles.creatorCard}>
+          {isLoading ? (
+            <ActivityIndicator color={theme.primary} />
+          ) : (
+            <>
+              <Avatar uri={creatorUser?.avatar} name={creatorName} size="md" />
+              <View style={styles.creatorBody}>
+                <View style={styles.creatorNameRow}>
+                  <Text style={styles.creatorName}>{creatorName}</Text>
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={13}
+                    color={theme.primary}
+                    style={styles.creatorIconSpacer}
+                  />
+                </View>
+                {!!creatorCuisine && (
+                  <Text style={styles.creatorCuisine}>{creatorCuisine}</Text>
+                )}
+              </View>
+              {!!creator?.rating && (
+                <View style={styles.ratingRow}>
+                  <Ionicons name="star" size={13} color="#FFB020" />
+                  <Text style={styles.ratingText}>{creator.rating.toFixed(1)}</Text>
+                </View>
+              )}
+            </>
+          )}
         </View>
 
         <Text style={styles.sectionTitle}>Select a service</Text>

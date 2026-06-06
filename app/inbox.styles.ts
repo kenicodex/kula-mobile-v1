@@ -8,29 +8,6 @@ export const makeStyles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.surface,
     },
-    header: {
-      backgroundColor: theme.card,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.hair,
-    },
-    headerRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing[4],
-      paddingTop: spacing[2],
-      paddingBottom: spacing[3],
-    },
-    headerTitle: {
-      flex: 1,
-      marginLeft: spacing[2],
-      color: theme.ink,
-      fontSize: 24,
-      fontWeight: '700',
-    },
-    searchWrap: {
-      paddingHorizontal: spacing[4],
-      paddingBottom: spacing[3],
-    },
     searchBar: {
       flexDirection: 'row',
       alignItems: 'center',

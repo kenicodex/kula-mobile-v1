@@ -8,34 +8,6 @@ export const makeStyles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.card,
     },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: spacing[3],
-      paddingVertical: spacing[2],
-      borderBottomWidth: 1,
-      borderBottomColor: theme.hair,
-    },
-    backButton: {
-      width: 36,
-      height: 36,
-      borderRadius: 999,
-      backgroundColor: theme.surface,
-      borderWidth: 1,
-      borderColor: theme.hair,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    headerTitle: {
-      flex: 1,
-      textAlign: 'center',
-      color: theme.ink,
-      fontSize: 16,
-      fontWeight: '700',
-    },
-    headerSpacer: {
-      width: 36,
-    },
     scrollContent: {
       padding: 24,
       paddingBottom: 40,
@@ -52,7 +24,7 @@ export const makeStyles = (theme: Theme) =>
     bookingInfo: {
       marginLeft: spacing[3],
     },
-    chefName: {
+    creatorName: {
       color: theme.ink,
       fontSize: 14,
       fontWeight: '700',
